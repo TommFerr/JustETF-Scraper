@@ -67,8 +67,15 @@ def scrape_etfs(url, status_placeholder):
                 try:
                     name = row.find_element(By.CSS_SELECTOR, "td:nth-child(2) > a").text
                     isin = row.find_element(By.CSS_SELECTOR, "td:nth-child(11)").text
+                    aum = row.find_element(By.CSS_SELECTOR, "td.tal-right.sorting_1").text
+                    aum_clean = float(aum.replace('€', '').replace(',', '').strip()) if aum else None
+                    
                     if name and isin:
-                        etf_data.append({"Name": name, "ISIN": isin})
+                        etf_data.append({
+                            "Name": name, 
+                            "ISIN": isin,
+                            "AuM (M€)": aum_clean
+                        })
                 except Exception:
                     error_count += 1
             
@@ -104,10 +111,10 @@ def scrape_etfs(url, status_placeholder):
 # Streamlit UI Configuration
 st.set_page_config(page_title="JustETF Scraper", page_icon="📊", layout="centered")
 st.title("JustETF Scraper")
-st.markdown("Enter an ETF issuer name to get their products' names and ISINs in CSV format.")
+st.markdown("Enter an ETF issuer name to get their ETF data in CSV format.")
 
 # User Input
-etf_issuer = st.text_input("ETF Issuer:", "")
+etf_issuer = st.text_input("ETF Issuer:", "iShares")
 
 # Construct the URL
 base_url = "https://www.justetf.com/it/search.html"
