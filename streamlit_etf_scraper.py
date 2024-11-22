@@ -68,6 +68,7 @@ def scrape_etfs(url, status_placeholder):
                     name = row.find_element(By.CSS_SELECTOR, "td:nth-child(2) > a").text
                     isin = row.find_element(By.CSS_SELECTOR, "td:nth-child(11)").text
                     aum = row.find_element(By.CSS_SELECTOR, "td.tal-right.sorting_1").text
+                    # Clean AuM value
                     aum_clean = float(aum.replace('€', '').replace(',', '').strip()) if aum else None
                     
                     if name and isin:
@@ -106,7 +107,11 @@ def scrape_etfs(url, status_placeholder):
         except:
             pass
     
-    return pd.DataFrame(etf_data)
+    # Create DataFrame and ensure AuM column is present
+    df = pd.DataFrame(etf_data)
+    # Make sure columns are in the desired order
+    df = df[["Name", "ISIN", "AuM (M€)"]]
+    return df
 
 # Streamlit UI Configuration
 st.set_page_config(page_title="JustETF Scraper", page_icon="📊", layout="centered")
